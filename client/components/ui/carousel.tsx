@@ -95,6 +95,10 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // embla is an imperative library and onSelect is the documented way to
+    // mirror its state into React. The cascading-render concern behind this
+    // rule doesn't apply to a library callback, so it's suppressed here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
