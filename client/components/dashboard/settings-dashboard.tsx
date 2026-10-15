@@ -77,7 +77,20 @@ export function SettingsDashboard() {
         </CardContent>
       </Card>
 
-      <UsageAllowance />
+      <UsageAllowance
+        usage={
+          // Guarded because frontend and backend deploy independently, so the
+          // API can briefly return the older payload without these fields.
+          user && typeof user.usedUsd === "number"
+            ? {
+                inputTokens: user.inputTokens,
+                outputTokens: user.outputTokens,
+                usedUsd: user.usedUsd,
+                includedUsd: user.includedUsd,
+              }
+            : undefined
+        }
+      />
 
       <Card>
         <CardHeader>

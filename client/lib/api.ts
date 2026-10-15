@@ -6,6 +6,11 @@ export type User = {
   githubUsername: string;
   displayName: string;
   avatarUrl: string | null;
+  /** Cumulative model usage, priced server-side from the configured rates. */
+  inputTokens: number;
+  outputTokens: number;
+  usedUsd: number;
+  includedUsd: number;
 };
 
 export type Repository = {
