@@ -11,21 +11,21 @@ import gitquery.backend.dto.UserResponse;
 import gitquery.backend.entity.User;
 import gitquery.backend.security.AppUserPrincipal;
 import gitquery.backend.security.CurrentUser;
+import gitquery.backend.services.UsageService;
 import lombok.RequiredArgsConstructor;
-
-
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final CurrentUser currentUser;
+    private final UsageService usageService;
 
     @GetMapping("/login-url")
     public Map<String, String> loginUrl() {
         return Map.of("url", "/oauth2/authorization/github");
     }
-
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me() {
@@ -36,7 +36,10 @@ public class AuthController {
                 user.getGithubId(),
                 user.getGithubUsername(),
                 user.getDisplayName(),
-                user.getAvatarUrl()));
+                user.getAvatarUrl(),
+                user.getInputTokens(),
+                user.getOutputTokens(),
+                usageService.usedUsd(user),
+                usageService.includedCreditUsd()));
     }
-    
 }
