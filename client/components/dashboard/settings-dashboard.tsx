@@ -18,6 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { UsageAllowance } from "@/components/usage-allowance";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
 
 export function SettingsDashboard() {
@@ -43,7 +44,7 @@ export function SettingsDashboard() {
                 alt={user?.displayName}
               />
               <AvatarFallback className="rounded-xl">
-                {(user?.displayName ?? "DP").slice(0, 2).toUpperCase()}
+                {(user?.displayName ?? "GQ").slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
@@ -75,6 +76,8 @@ export function SettingsDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      <UsageAllowance />
 
       <Card>
         <CardHeader>
