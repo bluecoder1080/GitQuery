@@ -1,17 +1,13 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { Plus, RotateCcw } from "lucide-react";
+import { Lock, Plus, RotateCcw } from "lucide-react";
 
 import { IndexStatusBadge } from "@/components/dashboard/repo-status";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useChatSessions,
-  useCreateChatSession,
-} from "@/hooks/use-chat";
+import { useChatSessions, useCreateChatSession } from "@/hooks/use-chat";
 import { useStartIndexing } from "@/hooks/use-repos";
 import type { Repository } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -31,14 +27,19 @@ export function ChatSidebar({
   const reindex = useStartIndexing();
 
   return (
-    <aside className="flex w-full flex-col border-b md:w-72 md:border-r md:border-b-0">
+    <aside className="flex w-full flex-col border-b border-border/60 bg-muted/20 md:w-72 md:border-r md:border-b-0">
       <div className="space-y-3 p-4">
-        <div className="space-y-1">
-          <p className="truncate text-sm font-medium">{repo.fullName}</p>
+        <div className="space-y-1.5">
+          <p className="truncate font-heading text-sm font-medium tracking-tight">
+            {repo.fullName}
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <IndexStatusBadge status={repo.indexStatus} />
             {repo.isPrivate && (
-              <span className="text-xs text-muted-foreground">Private</span>
+              <span className="inline-flex items-center gap-1 font-mono text-[0.68rem] text-muted-foreground">
+                <Lock className="size-3" />
+                private
+              </span>
             )}
           </div>
         </div>
@@ -63,23 +64,26 @@ export function ChatSidebar({
             disabled={reindex.isPending || repo.indexStatus === "INDEXING"}
             onClick={() => reindex.mutate(repo.id)}
             aria-label="Re-index repository"
+            title="Re-index repository"
           >
-            <RotateCcw />
+            <RotateCcw
+              className={cn(reindex.isPending && "animate-spin")}
+            />
           </Button>
         </div>
       </div>
 
-      <Separator />
-
-      <div className="px-4 py-2 text-xs font-medium text-muted-foreground">
-        Sessions
+      <div className="border-t border-border/60 px-4 py-2.5">
+        <span className="font-mono text-[0.65rem] tracking-widest text-muted-foreground uppercase">
+          Sessions
+        </span>
       </div>
 
       <ScrollArea className="flex-1">
         <div className="space-y-1 px-2 pb-4">
           {!ready && (
-            <p className="px-2 text-xs text-muted-foreground">
-              Sessions unlock after indexing completes.
+            <p className="px-2 py-1 text-xs leading-relaxed text-muted-foreground">
+              Sessions unlock once indexing completes.
             </p>
           )}
 
@@ -88,30 +92,51 @@ export function ChatSidebar({
               <Skeleton key={i} className="h-12 rounded-xl" />
             ))}
 
-          {sessionsQuery.data?.map((session) => (
-            <button
-              key={session.id}
-              type="button"
-              onClick={() => onSelectSession(session.id)}
-              className={cn(
-                "w-full rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-muted",
-                sessionId === session.id && "bg-muted"
-              )}
-            >
-              <p className="truncate text-sm font-medium">{session.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(session.createdAt), {
-                  addSuffix: true,
-                })}
-              </p>
-            </button>
-          ))}
+          {sessionsQuery.data?.map((session) => {
+            const active = sessionId === session.id;
+            return (
+              <button
+                key={session.id}
+                type="button"
+                onClick={() => onSelectSession(session.id)}
+                aria-current={active ? "true" : undefined}
+                className={cn(
+                  "group relative w-full overflow-hidden rounded-xl px-3 py-2.5 text-left transition-all duration-200",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "hover:translate-x-0.5 hover:bg-accent/60",
+                )}
+              >
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute top-1/2 left-0 h-6 w-0.5 -translate-y-1/2 rounded-full bg-primary"
+                  />
+                )}
+                <p
+                  className={cn(
+                    "truncate text-sm",
+                    active ? "font-medium text-primary" : "font-medium",
+                  )}
+                >
+                  {session.title}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(session.createdAt), {
+                    addSuffix: true,
+                  })}
+                </p>
+              </button>
+            );
+          })}
 
-          {ready && sessionsQuery.isSuccess && sessionsQuery.data.length === 0 && (
-            <p className="px-2 text-xs text-muted-foreground">
-              No chats yet. Start one to begin.
-            </p>
-          )}
+          {ready &&
+            sessionsQuery.isSuccess &&
+            sessionsQuery.data.length === 0 && (
+              <p className="px-2 py-1 text-xs text-muted-foreground">
+                No chats yet. Start one to begin.
+              </p>
+            )}
         </div>
       </ScrollArea>
     </aside>
