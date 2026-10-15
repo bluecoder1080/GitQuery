@@ -47,6 +47,22 @@ public class User {
     @Column(name = "token_scopes", length = 500)
     private String tokenScopes;
 
+    /**
+     * Cumulative model usage, stored as raw token counts rather than a currency
+     * amount so pricing can change without rewriting history.
+     *
+     * The column definitions carry an explicit {@code default 0} because
+     * Hibernate's schema update adds these to a table that already has rows;
+     * a bare NOT NULL column would be rejected by Postgres.
+     */
+    @Column(name = "input_tokens", nullable = false, columnDefinition = "bigint not null default 0")
+    @Builder.Default
+    private long inputTokens = 0;
+
+    @Column(name = "output_tokens", nullable = false, columnDefinition = "bigint not null default 0")
+    @Builder.Default
+    private long outputTokens = 0;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
