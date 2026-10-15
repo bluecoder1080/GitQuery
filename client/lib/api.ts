@@ -75,7 +75,11 @@ export class ApiError extends Error {
 }
 
 export function getApiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  // Same-origin by default: browser calls https://git-query-xi.vercel.app/api/...
+  // and Vercel rewrites proxy to the real backend (see next.config.ts).
+  // Only set NEXT_PUBLIC_API_BASE_URL if you want the browser to call the
+  // backend directly (cross-site, needs SameSite=None + CORS).
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "";
 }
 
 export function getGithubLoginUrl() {
