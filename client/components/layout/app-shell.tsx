@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Settings } from "lucide-react";
 
-import { DevPilotIcon } from "@/components/icons/devpilot-icon";
+import { GitQueryIcon } from "@/components/icons/gitquery-icon";
 
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
@@ -47,12 +47,18 @@ export function AppShell({
   description,
   actions,
   hideHeader = false,
+  contained = false,
 }: {
   children: React.ReactNode;
   title?: string;
   description?: string;
   actions?: React.ReactNode;
   hideHeader?: boolean;
+  /**
+   * Clamp the shell to the viewport instead of letting the page grow, so a
+   * child can own its own scrolling. Used by the chat transcript.
+   */
+  contained?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -60,7 +66,7 @@ export function AppShell({
   const logout = useLogout();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className={cn(contained && "h-svh overflow-hidden")}>
       <Sidebar variant="inset" collapsible="icon">
         <SidebarHeader>
           <SidebarMenu>
@@ -68,11 +74,14 @@ export function AppShell({
               <SidebarMenuButton
                 size="lg"
                 render={<Link href="/dashboard" />}
-                tooltip="DevPilot"
+                tooltip="GitQuery"
+                className="transition-colors hover:bg-sidebar-accent"
               >
-                <DevPilotIcon className="size-8 rounded-[10px]" />
+                <GitQueryIcon className="size-8 rounded-[11px] shadow-subtle" />
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">DevPilot</span>
+                  <span className="truncate font-heading font-semibold tracking-tight">
+                    GitQuery
+                  </span>
                   <span className="truncate text-xs text-muted-foreground">
                     Chat with your code
                   </span>
@@ -85,25 +94,42 @@ export function AppShell({
         <SidebarContent>
           {dashboardNavGroups.map((group) => (
             <SidebarGroup key={group.label}>
-              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroupLabel className="font-mono text-[0.65rem] tracking-widest uppercase">
+                {group.label}
+              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {group.items.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        isActive={isDashboardNavActive(
-                          pathname,
-                          item.href,
-                          item.exact
+                  {group.items.map((item) => {
+                    const active = isDashboardNavActive(
+                      pathname,
+                      item.href,
+                      item.exact,
+                    );
+                    return (
+                      <SidebarMenuItem key={item.href} className="relative">
+                        {active && (
+                          <span
+                            aria-hidden
+                            className="absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
+                          />
                         )}
-                        tooltip={item.title}
-                        render={<Link href={item.href} />}
-                      >
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                        <SidebarMenuButton
+                          isActive={active}
+                          tooltip={item.title}
+                          render={<Link href={item.href} />}
+                          className={cn(
+                            "transition-all duration-200",
+                            active
+                              ? "bg-primary/10 font-medium text-primary hover:bg-primary/15"
+                              : "hover:translate-x-0.5",
+                          )}
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -122,13 +148,13 @@ export function AppShell({
                     />
                   }
                 >
-                  <Avatar className="size-8 rounded-lg">
+                  <Avatar className="size-8 rounded-lg ring-1 ring-border/60">
                     <AvatarImage
                       src={user?.avatarUrl ?? undefined}
                       alt={user?.displayName}
                     />
                     <AvatarFallback className="rounded-lg">
-                      {(user?.displayName ?? "DP").slice(0, 2).toUpperCase()}
+                      {(user?.displayName ?? "GQ").slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -141,7 +167,7 @@ export function AppShell({
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="min-w-56 rounded-lg"
+                  className="min-w-56 rounded-xl"
                   side="top"
                   align="start"
                   sideOffset={8}
@@ -159,7 +185,9 @@ export function AppShell({
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/dashboard/settings")}
+                  >
                     <Settings />
                     Settings
                   </DropdownMenuItem>
@@ -180,13 +208,13 @@ export function AppShell({
 
       <SidebarInset>
         {!hideHeader && (
-          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
+          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border/60 glass px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
               <div className="min-w-0">
                 {title && (
-                  <h1 className="truncate font-heading text-sm font-medium">
+                  <h1 className="truncate font-heading text-sm font-medium tracking-tight">
                     {title}
                   </h1>
                 )}
@@ -203,23 +231,16 @@ export function AppShell({
             </div>
           </header>
         )}
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div
+          className={cn(
+            "flex flex-1 flex-col",
+            contained ? "min-h-0 overflow-hidden" : "animate-fade-in",
+          )}
+        >
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
-  );
-}
-
-export function BrandMark({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-2.5 font-semibold tracking-tight",
-        className
-      )}
-    >
-      <DevPilotIcon className="size-8 rounded-[10px]" />
-      <span className="font-heading text-[1.05rem] leading-none">DevPilot</span>
-    </div>
   );
 }
 
@@ -233,7 +254,13 @@ export function GhostButtonLink({
   className?: string;
 }) {
   return (
-    <Button variant="ghost" size="sm" className={className} render={<Link href={href} />}>
+    <Button
+      variant="ghost"
+      size="sm"
+      className={className}
+      nativeButton={false}
+      render={<Link href={href} />}
+    >
       {children}
     </Button>
   );
