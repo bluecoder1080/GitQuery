@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { UsageAllowance } from "@/components/usage-allowance";
 import { cn } from "@/lib/utils";
 import { getGithubLoginUrl } from "@/lib/api";
 import { useCurrentUser } from "@/hooks/use-auth";
@@ -72,9 +73,10 @@ function LoginContent() {
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-5 py-10">
-        <Card
-          className="animate-scale-in w-full max-w-sm rounded-3xl border-border/70 bg-card/80 shadow-floating backdrop-blur-xl"
-        >
+        <div className="w-full max-w-sm space-y-4">
+          <Card
+            className="animate-scale-in w-full rounded-3xl border-border/70 bg-card/80 shadow-floating backdrop-blur-xl"
+          >
           <CardHeader className="space-y-4 text-center">
             <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-border/60 bg-muted/60 transition-transform duration-300 hover:scale-105">
               <GitHubIcon className="size-6" />
@@ -128,6 +130,9 @@ function LoginContent() {
             </ul>
           </CardContent>
         </Card>
+
+          <UsageAllowance className="animate-fade-up" style={{ animationDelay: "120ms" }} />
+        </div>
       </main>
 
       <footer className="relative z-10 pb-8 text-center">
