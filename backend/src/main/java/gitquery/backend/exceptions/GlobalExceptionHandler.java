@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    /** 402 rather than 400 so the client can distinguish "out of credits". */
+    @ExceptionHandler(QuotaExceededException.class)
+    ResponseEntity<Map<String, Object>> handleQuotaExceeded(QuotaExceededException ex) {
+        return error(HttpStatus.PAYMENT_REQUIRED, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
