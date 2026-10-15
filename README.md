@@ -72,7 +72,14 @@ Required by code (see the `@Value` annotations across `config/` and `services/`)
 | `app.indexing.chunk-size` | `800` | Chunk size before token conversion |
 | `app.github.api-delay-ms` | `50` | Delay between GitHub API calls |
 
-You will also need the standard Spring datasource, `spring.ai.anthropic.*`, `spring.ai.vectorstore.pgvector.*` and `spring.security.oauth2.client.registration.github.*` properties. Embeddings need no key at all — the ONNX model is fetched on first run and cached under your OS temp directory.
+You will also need the standard Spring datasource, `spring.ai.anthropic.*`, `spring.ai.vectorstore.pgvector.*` and `spring.security.oauth2.client.registration.github.*` properties. Embeddings need no key at all — the ONNX model is fetched on first run.
+
+Set `spring.ai.embedding.transformer.cache.directory` to a stable path. Spring AI
+otherwise caches into a freshly created OS temp directory on every run, so the
+~90 MB model is re-downloaded on each restart and adds roughly 40 seconds to
+startup. On a container platform that path lives in the ephemeral container
+filesystem, so a cold start re-downloads regardless unless it is on a mounted
+volume.
 
 The vector dimension must match the embedding model, and pgvector fixes it when
 the table is created. `all-MiniLM-L6-v2` emits **384**; switching to a hosted
