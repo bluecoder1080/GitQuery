@@ -62,9 +62,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- Chat: Claude. Anthropic publishes no embeddings API, so embeddings
+		     come from the local ONNX model below rather than the same provider. -->
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
+			<artifactId>spring-ai-starter-model-anthropic</artifactId>
+		</dependency>
+		<!-- Embeddings: runs a sentence-transformers model locally via ONNX.
+		     No API key and no external service required. -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-transformers</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
