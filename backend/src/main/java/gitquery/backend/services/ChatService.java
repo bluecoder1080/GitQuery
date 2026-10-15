@@ -39,6 +39,8 @@ public class ChatService {
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final RepoService repoService;
+    private final UserService userService;
+    private final UsageService usageService;
     private final CodeContextRetriever codeContextRetriever;
     private final ChatPromptBuilder chatPromptBuilder;
     private final ChatStreamHandler chatStreamHandler;
@@ -96,23 +98,28 @@ public class ChatService {
             throw new BadRequestException("Repository is not ready for chat");
         }
 
-        // 2. Persist the user's message
+        // 2. Refuse before spending anything, and before the question is stored,
+        //    so a blocked request leaves no half-finished exchange behind.
+        usageService.requireRemaining(userService.requiredById(userId));
+
+        // 3. Persist the user's message
         ChatMessage userMessage = chatMessageRepository.save(ChatMessage.builder()
                 .sessionId(session.getId())
                 .role(MessageRole.USER)
                 .content(userContent)
                 .build());
 
-        // 3. RAG retrieval — find code chunks similar to the question
+        // 4. RAG retrieval — find code chunks similar to the question
         var retrievedContext = codeContextRetriever.retrieve(repo.getId(), userContent);
 
-        // 4. Build LLM prompts from retrieved context + question
+        // 5. Build LLM prompts from retrieved context + question
         String systemPrompt = chatPromptBuilder.systemPrompt(repo.getFullName());
         String userPrompt = chatPromptBuilder.userPrompt(retrievedContext.contextText(), userContent);
 
-        // 5. Stream OpenAI response to the client (SSE)
+        // 6. Stream the reply to the client (SSE), recording usage on completion
         return chatStreamHandler.stream(
                 session.getId(),
+                userId,
                 toMessageResponse(userMessage),
                 retrievedContext.citations(),
                 systemPrompt,
