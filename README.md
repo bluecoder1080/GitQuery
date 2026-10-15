@@ -76,10 +76,10 @@ You will also need the standard Spring datasource, `spring.ai.anthropic.*`, `spr
 
 Set `spring.ai.embedding.transformer.cache.directory` to a stable path. Spring AI
 otherwise caches into a freshly created OS temp directory on every run, so the
-~90 MB model is re-downloaded on each restart and adds roughly 40 seconds to
-startup. On a container platform that path lives in the ephemeral container
-filesystem, so a cold start re-downloads regardless unless it is on a mounted
-volume.
+~90 MB model is re-downloaded on each restart — measured, that accounts for
+about 12 seconds of a ~44 second boot. On a container platform the path lives in
+the ephemeral container filesystem, so a cold start re-downloads regardless
+unless it is on a mounted volume.
 
 The vector dimension must match the embedding model, and pgvector fixes it when
 the table is created. `all-MiniLM-L6-v2` emits **384**; switching to a hosted
