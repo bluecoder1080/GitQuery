@@ -89,9 +89,11 @@ services:
         value: /tmp/gitquery-model-cache
 
       # --------------------------------------------------------------- github
-      # A SECOND OAuth App, not the localhost one — OAuth Apps accept a single
-      # callback URL. Register this exact value:
+      # Add this URL to the SAME OAuth App you use for localhost — OAuth Apps
+      # accept up to 10 callback URLs, so no second app is needed:
       #   https://<this-service>.onrender.com/login/oauth2/code/github
+      # Leave "Allow wildcard matching" disabled; it is for dynamic subdomains
+      # and widens what GitHub accepts as a redirect target.
       - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID
         sync: false
       - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET

@@ -69,9 +69,20 @@ Create an OAuth App with the authorization callback URL:
 https://api.example.com/login/oauth2/code/github
 ```
 
-GitHub OAuth Apps accept a **single** callback URL — unlike GitHub Apps, which
-allow several. Keep a separate OAuth App for localhost, or edit the URL when
-switching environments.
+GitHub OAuth Apps accept **up to 10 callback URLs**, so a single app serves both
+localhost and production. Add both rather than creating a second app:
+
+```
+http://localhost:8080/login/oauth2/code/github
+https://api.example.com/login/oauth2/code/github
+```
+
+Leave **Allow wildcard matching** disabled on each. It exists for apps with
+dynamic subdomains; enabling it only requires the host's non-subdomain part and
+port to match and the path to be a subdirectory, which widens what GitHub will
+accept as a redirect target. GitHub's docs warn it "can expose your app to
+security risks". Note that apps with a single callback URL created before
+3 August 2026 have it enabled by default, so check existing apps.
 
 ## 3. Backend (Render)
 

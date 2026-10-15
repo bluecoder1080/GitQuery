@@ -54,7 +54,10 @@ In GitHub → Settings → Developer settings → OAuth Apps, create a new OAuth
 http://localhost:8080/login/oauth2/code/github
 ```
 
-GitHub OAuth Apps accept a single callback URL, so you need a second app (or an edited URL) for production.
+GitHub OAuth Apps accept **up to 10 callback URLs**, so one app can serve both
+localhost and production — add each URL rather than creating a second app. Leave
+**Allow wildcard matching** disabled for each: it exists for dynamic subdomains,
+and GitHub's own docs warn it "can expose your app to security risks".
 
 ### 3. Configure the backend
 
