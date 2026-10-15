@@ -99,15 +99,27 @@ Two caveats about the free tier:
 
 ## Before making the link public
 
-**The OpenAI key is the real risk.** A public URL with your key behind it means
-anyone who finds the link can spend your money. Mitigations, most useful first:
+**The Anthropic key is the real risk.** A public URL with your key behind it
+means anyone who finds the link can spend your money. Mitigations, most useful
+first:
 
 1. Create a **project-scoped API key** with a hard monthly spend limit in the
-   OpenAI dashboard, rather than using a personal key.
+   Anthropic console, rather than using a personal key.
 2. Add per-user throttling on `POST /api/chat/sessions/{id}/messages`.
 3. Gate sign-in to an allowlist of GitHub usernames while it is a demo —
    `GithubOAuth2UserService` already has the login in hand, so the check is
    only a few lines.
+
+Embeddings are less exposed: they run locally through ONNX, so indexing a
+repository costs nothing and needs no credential. Only chat calls out to a paid
+API.
+
+Two deployment consequences of running embeddings locally:
+
+- **Memory.** Loading the ONNX model plus the JVM needs headroom. A 512 MB
+  instance may struggle; 1 GB is safer.
+- **First-run latency.** The model is downloaded and cached on first use, so the
+  very first index on a cold instance is slower than subsequent ones.
 
 Also worth fixing before people look, since both are user-visible: the prompt
 never sends conversation history (follow-ups are broken), and citations always

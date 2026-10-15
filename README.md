@@ -16,19 +16,25 @@ Sign in with GitHub, pick a repository, let it index, then chat. Retrieval is sc
 | Layer | Technology |
 |---|---|
 | Backend | Spring Boot 4.1.0, Java 21, Maven |
-| AI | Spring AI 2.0.0 — OpenAI chat model, pgvector vector store |
-| Database | PostgreSQL 16 with pgvector |
+| AI (chat) | Spring AI 2.0.0 with Anthropic Claude — `claude-haiku-5-5` |
+| AI (embeddings) | `all-MiniLM-L6-v2` running locally via ONNX Runtime |
+| Database | PostgreSQL with pgvector |
 | Auth | Spring Security OAuth2 (GitHub), session-based |
 | Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 |
 | UI | shadcn/ui on Base UI, TanStack Query |
+
+> **Why two AI providers?** Anthropic publishes no embeddings endpoint
+> (`POST /v1/embeddings` returns 404), so chat and embeddings cannot come from
+> the same service. Chat runs on Claude; embeddings run locally on this machine,
+> which also means indexing costs nothing and needs no second API key.
 
 ## Prerequisites
 
 - Java 21
 - Node.js 20+
-- Docker (for the database), or your own PostgreSQL 16 with pgvector
+- Docker (for the database), or your own PostgreSQL with pgvector
 - A GitHub OAuth App
-- An OpenAI API key
+- An Anthropic API key
 
 ## Setup
 
@@ -66,7 +72,13 @@ Required by code (see the `@Value` annotations across `config/` and `services/`)
 | `app.indexing.chunk-size` | `800` | Chunk size before token conversion |
 | `app.github.api-delay-ms` | `50` | Delay between GitHub API calls |
 
-You will also need the standard Spring datasource, `spring.ai.openai.*`, `spring.ai.vectorstore.pgvector.*` and `spring.security.oauth2.client.registration.github.*` properties.
+You will also need the standard Spring datasource, `spring.ai.anthropic.*`, `spring.ai.vectorstore.pgvector.*` and `spring.security.oauth2.client.registration.github.*` properties. Embeddings need no key at all — the ONNX model is fetched on first run and cached under your OS temp directory.
+
+The vector dimension must match the embedding model, and pgvector fixes it when
+the table is created. `all-MiniLM-L6-v2` emits **384**; switching to a hosted
+embedding model such as `text-embedding-3-small` (1536) means changing
+`spring.ai.vectorstore.pgvector.dimensions`, dropping the `vector_store` table,
+and re-indexing every repository.
 
 ### 4. Run
 
