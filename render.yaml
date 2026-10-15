@@ -1,0 +1,132 @@
+# Render blueprint for the GitQuery backend.
+#
+# Import this at https://dashboard.render.com/blueprints -> New Blueprint Instance,
+# pointing at this repository. Render reads this file from the repo root, creates
+# the service, and prompts for every variable marked `sync: false` — those are the
+# credentials, deliberately not stored here so they stay out of git.
+#
+# Why Render for the backend rather than Vercel: IndexingService finishes its work
+# on a background executor thread after returning 202. Vercel ends the invocation
+# when the response is sent, which truncates indexing and leaves repositories stuck
+# in INDEXING. A persistent process does not have that problem, so this runs
+# unchanged here. See DEPLOYMENT.md.
+#
+# The frontend stays on Vercel.
+
+services:
+  - type: web
+    name: gitquery-api
+    runtime: docker
+    # The Spring Boot app lives in a subdirectory, so both of these are needed.
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # 'ohio' is us-east-2, which is where this project's Neon database lives.
+    # Keeping compute beside the database removes a cross-country round trip on
+    # every query. Change it if your Neon project is elsewhere.
+    region: ohio
+    # The actuator starter is already a dependency, so this endpoint exists.
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: commit
+    envVars:
+      # ---------------------------------------------------------------- origin
+      # Where Spring redirects after a successful GitHub login, and the only
+      # origin allowed to call the API with credentials. Both must match the
+      # deployed frontend exactly, including the scheme, or login lands nowhere
+      # and every post-login request is blocked by CORS.
+      - key: APP_FRONTEND_URL
+        value: https://git-query-xi.vercel.app
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://git-query-xi.vercel.app
+
+      # ------------------------------------------------------------- database
+      # Paste the values from Neon. SPRING_DATASOURCE_URL needs the jdbc: prefix
+      # and ?sslmode=require; the string Neon displays is postgresql:// and will
+      # not work with Spring as-is.
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      # Creates and updates tables on startup. Acceptable here; a longer-lived
+      # project would use a migration tool instead.
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+
+      # ---------------------------------------------------------------- crypto
+      # Encrypts stored GitHub access tokens. Generate fresh values:
+      #   openssl rand -base64 32   and   openssl rand -hex 16
+      # Do NOT reuse the local ones, or tokens encrypted with the old key become
+      # unreadable.
+      - key: APP_TOKEN_ENCRYPTOR_PASSWORD
+        sync: false
+      - key: APP_TOKEN_ENCRYPTOR_SALT
+        sync: false
+
+      # ------------------------------------------------------------------- ai
+      - key: SPRING_AI_ANTHROPIC_API_KEY
+        sync: false
+      - key: SPRING_AI_ANTHROPIC_CHAT_OPTIONS_MODEL
+        value: claude-haiku-5-5
+      - key: SPRING_AI_ANTHROPIC_CHAT_OPTIONS_MAX_TOKENS
+        value: "4096"
+
+      # ----------------------------------------------------------- embeddings
+      # Local ONNX, so no embedding API key exists. all-MiniLM-L6-v2 emits 384
+      # dimensions and pgvector fixes the column width once the table exists, so
+      # changing the model means dropping vector_store and re-indexing.
+      - key: SPRING_AI_VECTORSTORE_PGVECTOR_DIMENSIONS
+        value: "384"
+      - key: SPRING_AI_VECTORSTORE_PGVECTOR_INITIALIZE_SCHEMA
+        value: "true"
+      - key: SPRING_AI_EMBEDDING_TRANSFORMER_CACHE_ENABLED
+        value: "true"
+      # Render's filesystem is ephemeral, and the free plan has no persistent
+      # disks, so the ~90 MB model is re-downloaded after each deploy and each
+      # cold start. That adds roughly 12 seconds to startup. On a paid plan, a
+      # disk mounted here would keep it, though then only one instance may run.
+      - key: SPRING_AI_EMBEDDING_TRANSFORMER_CACHE_DIRECTORY
+        value: /tmp/gitquery-model-cache
+
+      # --------------------------------------------------------------- github
+      # A SECOND OAuth App, not the localhost one — OAuth Apps accept a single
+      # callback URL. Register this exact value:
+      #   https://<this-service>.onrender.com/login/oauth2/code/github
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID
+        sync: false
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET
+        sync: false
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_SCOPE
+        value: read:user,repo
+
+      # -------------------------------------------------------------- indexing
+      - key: APP_INDEXING_MAX_FILE_BYTES
+        value: "102400"
+      - key: APP_INDEXING_CHUNK_SIZE
+        value: "800"
+      - key: APP_GITHUB_API_DELAY_MS
+        value: "50"
+
+      # ----------------------------------------------------------- allowance
+      # Per-user included spend and the rates it is priced at, at Claude Haiku
+      # 5.5 list pricing. Chat returns HTTP 402 once the credit is reached.
+      - key: APP_USAGE_INCLUDED_CREDIT_USD
+        value: "0.05"
+      - key: APP_USAGE_INPUT_USD_PER_MILLION
+        value: "0.10"
+      - key: APP_USAGE_OUTPUT_USD_PER_MILLION
+        value: "0.50"
+
+      # ----------------------------------------------------- cross-site cookie
+      # Only needed if the frontend and backend end up on different registrable
+      # domains. *.vercel.app and *.onrender.com ARE different sites — the browser
+      # refuses cookies on the shared .vercel.app suffix, verified against the
+      # live deployment — so the session cookie would be third-party: Lax will not
+      # send it and None is blocked by Safari and Firefox anyway. A custom domain
+      # with app./api. subdomains is the reliable fix; these two lines are the
+      # partial workaround (Chrome only).
+      #
+      # - key: SERVER_SERVLET_SESSION_COOKIE_SAME_SITE
+      #   value: none
+      # - key: SERVER_SERVLET_SESSION_COOKIE_SECURE
+      #   value: "true"

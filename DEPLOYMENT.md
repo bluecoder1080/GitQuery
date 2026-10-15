@@ -75,6 +75,14 @@ switching environments.
 
 ## 3. Backend (Render)
 
+**The quickest route is the blueprint in [`render.yaml`](render.yaml).** Import it
+at Render → Blueprints → New Blueprint Instance and point it at this repository.
+Render creates the service and prompts for the eight credential values, which are
+marked `sync: false` so they are never stored in git. It also pins the region to
+`ohio` (us-east-2) to sit beside a Neon database in the same region.
+
+To configure it by hand instead:
+
 - Create a **Web Service** pointing at this repo, root directory `backend`.
 - Render detects `backend/Dockerfile` automatically. Free instances do support
   Docker; the native runtime list does not include Java.
