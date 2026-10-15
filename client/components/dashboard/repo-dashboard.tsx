@@ -73,7 +73,7 @@ export function RepoDashboard() {
         )}
 
         {reposQuery.isError && (
-          <Empty className="border border-dashed">
+          <Empty className="rounded-2xl border border-border/70 bg-card/40 backdrop-blur">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <FolderGit2 />
@@ -88,7 +88,7 @@ export function RepoDashboard() {
         )}
 
         {reposQuery.isSuccess && filtered.length === 0 && (
-          <Empty className="border border-dashed">
+          <Empty className="rounded-2xl border border-border/70 bg-card/40 backdrop-blur">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <FolderGit2 />
@@ -103,8 +103,14 @@ export function RepoDashboard() {
 
         {reposQuery.isSuccess && filtered.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((repo) => (
-              <RepoCard key={repo.id} repo={repo} />
+            {filtered.map((repo, i) => (
+              <div
+                key={repo.id}
+                className="animate-fade-up"
+                style={{ animationDelay: `${Math.min(i, 8) * 55}ms` }}
+              >
+                <RepoCard repo={repo} />
+              </div>
             ))}
           </div>
         )}

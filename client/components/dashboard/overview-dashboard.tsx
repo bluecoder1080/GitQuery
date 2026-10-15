@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import { RepoCard } from "@/components/dashboard/repo-card";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -20,27 +19,38 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRepos } from "@/hooks/use-repos";
+import { cn } from "@/lib/utils";
 
 function StatCard({
   label,
   value,
   hint,
   icon: Icon,
+  delay = 0,
 }: {
   label: string;
   value: string | number;
   hint?: string;
   icon: typeof FolderGit2;
+  delay?: number;
 }) {
   return (
-    <Card size="sm">
+    <Card
+      size="sm"
+      style={{ animationDelay: `${delay}ms` }}
+      className="group animate-fade-up transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-raised"
+    >
       <CardHeader className="pb-0">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardDescription>{label}</CardDescription>
-            <CardTitle className="mt-1 text-2xl font-semibold">{value}</CardTitle>
+            <CardDescription className="font-mono text-[0.68rem] tracking-wide uppercase">
+              {label}
+            </CardDescription>
+            <CardTitle className="mt-1.5 font-heading text-2xl font-semibold tracking-tight">
+              {value}
+            </CardTitle>
           </div>
-          <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+          <div className="rounded-xl border border-border/60 bg-muted/60 p-2 text-muted-foreground transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary">
             <Icon className="size-4" />
           </div>
         </div>
@@ -86,24 +96,28 @@ export function OverviewDashboard() {
               value={repos.length}
               hint="Connected from GitHub"
               icon={FolderGit2}
+              delay={0}
             />
             <StatCard
               label="Ready to chat"
               value={readyCount}
               hint={`${indexingCount} currently indexing`}
               icon={CheckCircle2}
+              delay={70}
             />
             <StatCard
               label="Indexed chunks"
               value={totalChunks.toLocaleString()}
               hint="Searchable code segments"
               icon={MessageSquareCode}
+              delay={140}
             />
             <StatCard
               label="Needs attention"
               value={failedCount}
               hint={failedCount > 0 ? "Review failed indexing jobs" : "All repos healthy"}
               icon={failedCount > 0 ? AlertCircle : LoaderCircle}
+              delay={210}
             />
           </>
         )}
@@ -176,24 +190,46 @@ export function OverviewDashboard() {
               ) : (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Ready</span>
-                    <Badge variant="secondary">{readyCount}</Badge>
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-primary" />
+                      Ready
+                    </span>
+                    <span className="font-mono text-sm">{readyCount}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Indexing</span>
-                    <Badge variant="secondary">{indexingCount}</Badge>
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-sky-500" />
+                      Indexing
+                    </span>
+                    <span className="font-mono text-sm">{indexingCount}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Pending</span>
-                    <Badge variant="secondary">
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-muted-foreground/50" />
+                      Pending
+                    </span>
+                    <span className="font-mono text-sm">
                       {repos.filter((repo) => repo.indexStatus === "PENDING").length}
-                    </Badge>
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Failed</span>
-                    <Badge variant={failedCount > 0 ? "destructive" : "secondary"}>
+                    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full",
+                          failedCount > 0 ? "bg-destructive" : "bg-muted-foreground/50",
+                        )}
+                      />
+                      Failed
+                    </span>
+                    <span
+                      className={cn(
+                        "font-mono text-sm",
+                        failedCount > 0 && "text-destructive",
+                      )}
+                    >
                       {failedCount}
-                    </Badge>
+                    </span>
                   </div>
                 </>
               )}
