@@ -2,4 +2,5 @@
 backend/src/main/resources/application.properties
 .env
 .env.local
+.env.deploy
 !.env.example
