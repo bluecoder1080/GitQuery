@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="GitQuery">
+  <title>GitQuery</title>
+  <defs>
+    <!-- userSpaceOnUse: the default objectBoundingBox scale would read these
+         as multiples of the box and flatten every gradient. -->
+    <linearGradient id="tile" gradientUnits="userSpaceOnUse" x1="6" y1="0" x2="58" y2="64">
+      <stop offset="0%" stop-color="#5EEAD4"/>
+      <stop offset="26%" stop-color="#2DD4BF"/>
+      <stop offset="62%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0E7490"/>
+    </linearGradient>
+    <linearGradient id="gloss" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="36">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="base" gradientUnits="userSpaceOnUse" x1="0" y1="64" x2="0" y2="44">
+      <stop offset="0%" stop-color="#083344" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#083344" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Superellipse squircle: 8 sampled points per corner, continuous curvature. -->
+  <path fill="url(#tile)" d="M48 0 L55.07 0.15 L57.9 0.62 L59.93 1.41 L61.45 2.55 L62.59 4.07 L63.38 6.1 L63.85 8.93 L64 16 L64 48 L63.85 55.07 L63.38 57.9 L62.59 59.93 L61.45 61.45 L59.93 62.59 L57.9 63.38 L55.07 63.85 L48 64 L16 64 L8.93 63.85 L6.1 63.38 L4.07 62.59 L2.55 61.45 L1.41 59.93 L0.62 57.9 L0.15 55.07 L0 48 L0 16 L0.15 8.93 L0.62 6.1 L1.41 4.07 L2.55 2.55 L4.07 1.41 L6.1 0.62 L8.93 0.15 L16 0 Z"/>
+  <path fill="url(#gloss)" d="M48 0 L55.07 0.15 L57.9 0.62 L59.93 1.41 L61.45 2.55 L62.59 4.07 L63.38 6.1 L63.85 8.93 L64 16 L64 48 L63.85 55.07 L63.38 57.9 L62.59 59.93 L61.45 61.45 L59.93 62.59 L57.9 63.38 L55.07 63.85 L48 64 L16 64 L8.93 63.85 L6.1 63.38 L4.07 62.59 L2.55 61.45 L1.41 59.93 L0.62 57.9 L0.15 55.07 L0 48 L0 16 L0.15 8.93 L0.62 6.1 L1.41 4.07 L2.55 2.55 L4.07 1.41 L6.1 0.62 L8.93 0.15 L16 0 Z"/>
+  <path fill="url(#base)" d="M48 0 L55.07 0.15 L57.9 0.62 L59.93 1.41 L61.45 2.55 L62.59 4.07 L63.38 6.1 L63.85 8.93 L64 16 L64 48 L63.85 55.07 L63.38 57.9 L62.59 59.93 L61.45 61.45 L59.93 62.59 L57.9 63.38 L55.07 63.85 L48 64 L16 64 L8.93 63.85 L6.1 63.38 L4.07 62.59 L2.55 61.45 L1.41 59.93 L0.62 57.9 L0.15 55.07 L0 48 L0 16 L0.15 8.93 L0.62 6.1 L1.41 4.07 L2.55 2.55 L4.07 1.41 L6.1 0.62 L8.93 0.15 L16 0 Z"/>
+  <path fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1" d="M48 0 L55.07 0.15 L57.9 0.62 L59.93 1.41 L61.45 2.55 L62.59 4.07 L63.38 6.1 L63.85 8.93 L64 16 L64 48 L63.85 55.07 L63.38 57.9 L62.59 59.93 L61.45 61.45 L59.93 62.59 L57.9 63.38 L55.07 63.85 L48 64 L16 64 L8.93 63.85 L6.1 63.38 L4.07 62.59 L2.55 61.45 L1.41 59.93 L0.62 57.9 L0.15 55.07 L0 48 L0 16 L0.15 8.93 L0.62 6.1 L1.41 4.07 L2.55 2.55 L4.07 1.41 L6.1 0.62 L8.93 0.15 L16 0 Z"/>
+
+  <path d="M21 25.5 L28.5 32 L21 38.5" fill="none" stroke="#FFFFFF" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33.5 38.5 H43" fill="none" stroke="#FFFFFF" stroke-width="3.8" stroke-linecap="round"/>
+</svg>
