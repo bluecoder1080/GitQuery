@@ -34,9 +34,9 @@ services:
       # deployed frontend exactly, including the scheme, or login lands nowhere
       # and every post-login request is blocked by CORS.
       - key: APP_FRONTEND_URL
-        value: https://git-query-xi.vercel.app
+        value: https://gitquery-seven.vercel.app
       - key: APP_CORS_ALLOWED_ORIGINS
-        value: https://git-query-xi.vercel.app
+        value: https://gitquery-seven.vercel.app
 
       # ------------------------------------------------------------- database
       # Paste the values from Neon. SPRING_DATASOURCE_URL needs the jdbc: prefix
