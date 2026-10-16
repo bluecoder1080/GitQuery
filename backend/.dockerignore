@@ -1,0 +1,15 @@
+# Keep the Docker build context small: only .mvn/, mvnw, pom.xml and src/
+# are ever COPYed. Everything else just slows the upload and risks
+# busting Render's build cache.
+target/
+.git/
+.gitignore
+.vscode/
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+HELP.md
+mvnw.cmd

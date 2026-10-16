@@ -17,8 +17,17 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-# Keep the JVM inside the container's memory limit instead of the host's.
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
+# Tuned for a 512 MB container (e.g. Render free tier). RAM — not image
+# size — is what gets you OOM-killed, so every flag below caps a memory pool:
+#   MaxRAMPercentage=50 ... heap ~256 MB, leaving room for metaspace, the
+#                           ONNX native arena + model, and direct buffers
+#   MaxMetaspaceSize=128m . Spring + Spring AI load a lot of classes; cap it
+#   Xss256k ............... default 1 MB thread stacks × dozens of threads
+#                           adds up; 256k is plenty for this app
+#   TieredStopAtLevel=1 ... C1 JIT only — smaller code cache, faster startup
+#   UseSerialGC ........... single-threaded GC; on 0.1-CPU free tiers G1's
+#                           parallel threads are pure overhead
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=50 -XX:MaxMetaspaceSize=128m -XX:CompressedClassSpaceSize=32m -Xss256k -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
 EXPOSE 8080
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

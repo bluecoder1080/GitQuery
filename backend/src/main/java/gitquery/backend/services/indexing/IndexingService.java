@@ -30,8 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class IndexingService {
-    private static final int VECTOR_BATCH_SIZE = 32;
     private static final int PROGRESS_EVERY_N_FILES = 5;
+
+    @Value("${app.indexing.vector-batch-size:16}")
+    private int vectorBatchSize;
 
     private final RepositoryRepository repositoryRepository;
     private final UserService userService;
@@ -96,7 +98,7 @@ public class IndexingService {
                 List<Document> chunks = codeChunker.chunkFile(repoId.toString(), path, content);
                 batch.addAll(chunks);
                 totalChunks += chunks.size();
-                if (batch.size() >= VECTOR_BATCH_SIZE) {
+                if (batch.size() >= vectorBatchSize) {
                     vectorStore.add(batch);
                     batch.clear();
                 }

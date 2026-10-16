@@ -135,8 +135,13 @@ API.
 
 Two deployment consequences of running embeddings locally:
 
-- **Memory.** Loading the ONNX model plus the JVM needs headroom. A 512 MB
-  instance may struggle; 1 GB is safer.
+- **Memory.** Loading the ONNX model plus the JVM needs headroom. The repo
+  now ships a low-memory profile by default (lean `JAVA_OPTS` in
+  `backend/Dockerfile`, lazy bean init, 2-connection Hikari pool, 10 Tomcat
+  threads, vector batch size 16 — see `.env.example`), which is sized for a
+  512 MB instance. Booting still passes, but indexing a large repository can
+  spike past 512 MB on the very first run when the model loads; 1 GB remains
+  the safer choice for a demo you share publicly.
 - **First-run latency.** The model is downloaded and cached on first use, so the
   very first index on a cold instance is slower than subsequent ones.
 

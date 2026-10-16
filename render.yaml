@@ -108,6 +108,29 @@ services:
         value: "800"
       - key: APP_GITHUB_API_DELAY_MS
         value: "50"
+      # Half the default embed batch: peak indexing RAM matters on 512 MB.
+      - key: APP_INDEXING_VECTOR_BATCH_SIZE
+        value: "16"
+
+      # ----------------------------------------------------- low-memory profile
+      # Without these the JVM + Spring AI + ONNX exceed Render's 512 MB free
+      # tier and the service is OOM-killed. Lazy init keeps the ~90 MB model
+      # out of memory until the first index request so boot passes the
+      # health check.
+      - key: SPRING_MAIN_LAZY_INITIALIZATION
+        value: "true"
+      - key: SPRING_MAIN_BANNER_MODE
+        value: "off"
+      - key: SPRING_JPA_OPEN_IN_VIEW
+        value: "false"
+      - key: SERVER_TOMCAT_THREADS_MAX
+        value: "10"
+      - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+        value: "2"
+      - key: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
+        value: "1"
+      - key: LOGGING_LEVEL_ROOT
+        value: "WARN"
 
       # ----------------------------------------------------------- allowance
       # Per-user included spend and the rates it is priced at, at Claude Haiku

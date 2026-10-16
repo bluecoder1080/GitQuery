@@ -19,9 +19,11 @@ public class AppConfig {
     @Bean(name = "indexingExecutor")
     Executor indexingExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(50);
+        // Kept small on purpose: each thread holds file content + embedding
+        // batches in memory, and free-tier containers only have 512 MB.
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(20);
         executor.setThreadNamePrefix("index-");
         executor.initialize();
         return executor;
